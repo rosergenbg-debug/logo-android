@@ -37,9 +37,7 @@ class AudioRouteManager(context: Context) {
                 ?: available.firstOrNull {
                     isBluetoothOutput(it) && isBluetoothOutput(output)
                 }
-            if (matching != null) {
-                runCatching { audioManager.setCommunicationDevice(matching) }
-            }
+            if (matching != null) runCatching { audioManager.setCommunicationDevice(matching) }
         }
     }
 
@@ -62,6 +60,26 @@ class AudioRouteManager(context: Context) {
         else -> false
     }
 
+    fun isLeAudio(device: AudioDeviceInfo?): Boolean = when (device?.type) {
+        AudioDeviceInfo.TYPE_BLE_HEADSET,
+        AudioDeviceInfo.TYPE_BLE_SPEAKER -> true
+        else -> false
+    }
+
+    fun outputTransportName(device: AudioDeviceInfo?): String = when (device?.type) {
+        AudioDeviceInfo.TYPE_BLE_HEADSET,
+        AudioDeviceInfo.TYPE_BLE_SPEAKER -> "LE Audio / LC3"
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "Classic Bluetooth / A2DP"
+        AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> "Bluetooth SCO (гарнитура)"
+        AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
+        AudioDeviceInfo.TYPE_WIRED_HEADSET -> "Проводной аудиотракт"
+        AudioDeviceInfo.TYPE_USB_HEADSET,
+        AudioDeviceInfo.TYPE_USB_DEVICE,
+        AudioDeviceInfo.TYPE_USB_ACCESSORY -> "USB audio"
+        null -> "Автоматически (система)"
+        else -> typeName(device.type)
+    }
+
     fun isBuiltInMic(device: AudioDeviceInfo?): Boolean =
         device?.type == AudioDeviceInfo.TYPE_BUILTIN_MIC
 
@@ -73,9 +91,9 @@ class AudioRouteManager(context: Context) {
             isBluetoothOutput(output?.device) -> "Микрофон телефона/выбранный вход → Bluetooth"
             else -> "Стандартный аудиотракт Android"
         }
-        return "Вход: $inText\nВыход: $outText\nРежим: $mode\n\n" +
-            "Важно: в v1.0 значение DAF — это дополнительная задержка приложения. " +
-            "Собственная задержка Bluetooth пока не вычитается автоматически."
+        return "Вход: $inText\nВыход: $outText\nТранспорт: ${outputTransportName(output?.device)}\nРежим: $mode\n\n" +
+            "Значение DAF — дополнительная программная задержка. После акустической калибровки " +
+            "Лого показывает также измеренную базовую задержку тракта и ориентировочный итог."
     }
 
     private fun option(device: AudioDeviceInfo): AudioDeviceOption {
@@ -91,11 +109,13 @@ class AudioRouteManager(context: Context) {
     }
 
     private fun outputPriority(device: AudioDeviceInfo): Int = when {
-        isBluetoothOutput(device) -> 0
+        isLeAudio(device) -> 0
+        device.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> 1
+        isBluetoothOutput(device) -> 2
         device.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
             device.type == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
-            device.type == AudioDeviceInfo.TYPE_USB_HEADSET -> 1
-        else -> 2
+            device.type == AudioDeviceInfo.TYPE_USB_HEADSET -> 3
+        else -> 4
     }
 
     private fun typeName(type: Int): String = when (type) {
