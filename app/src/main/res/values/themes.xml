@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Logo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/logo_black</item>
+        <item name="colorPrimaryVariant">@color/logo_black</item>
+        <item name="colorOnPrimary">@color/logo_yellow</item>
+        <item name="colorSecondary">@color/logo_yellow</item>
+        <item name="colorOnSecondary">@color/logo_black</item>
+        <item name="android:statusBarColor">@color/logo_black</item>
+        <item name="android:navigationBarColor">@color/logo_black</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/logo_background</item>
+    </style>
+</resources>
