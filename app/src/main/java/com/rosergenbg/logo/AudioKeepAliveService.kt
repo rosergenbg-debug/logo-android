@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat
 /**
  * Foreground companion service for a running DAF session.
  * It keeps the process in foreground priority while the Activity is covered or backgrounded.
- * The real-time audio engine remains owned by MainActivity in v1.1.
+ * The real-time audio engine is process-wide via DafRuntime in v1.1.
  */
 class AudioKeepAliveService : Service() {
 
@@ -50,12 +50,12 @@ class AudioKeepAliveService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val delayMs = intent?.getIntExtra(EXTRA_DELAY, 0) ?: 0
+        val openIntent = Intent(this, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val openApp = PendingIntent.getActivity(
             this,
             0,
-            Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            },
+            openIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
