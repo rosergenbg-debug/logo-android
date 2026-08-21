@@ -62,11 +62,8 @@ class AudioRouteManager(context: Context) {
         else -> false
     }
 
-    fun isBuiltInMic(device: AudioDeviceInfo?): Boolean = when (device?.type) {
-        AudioDeviceInfo.TYPE_BUILTIN_MIC,
-        AudioDeviceInfo.TYPE_BACK_MIC -> true
-        else -> false
-    }
+    fun isBuiltInMic(device: AudioDeviceInfo?): Boolean =
+        device?.type == AudioDeviceInfo.TYPE_BUILTIN_MIC
 
     fun technicalSummary(input: AudioDeviceOption?, output: AudioDeviceOption?): String {
         val inText = input?.label ?: "—"
@@ -103,7 +100,6 @@ class AudioRouteManager(context: Context) {
 
     private fun typeName(type: Int): String = when (type) {
         AudioDeviceInfo.TYPE_BUILTIN_MIC -> "микрофон телефона"
-        AudioDeviceInfo.TYPE_BACK_MIC -> "задний микрофон"
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER -> "динамик телефона"
         AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "Bluetooth A2DP"
         AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> "Bluetooth SCO"
