@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
 /**
- * Small real-time DAF engine for v1.0.
+ * Real-time DAF engine.
  *
  * Audio path: AudioRecord -> circular delay buffer -> AudioTrack.
  * The selected delay is additional application delay; transport latency from Bluetooth remains.
@@ -24,6 +24,7 @@ class DafAudioEngine(
         const val SAMPLE_RATE = 48_000
         const val MAX_DELAY_MS = 250
         private const val CHUNK_FRAMES = 480 // ~10 ms at 48 kHz
+        private const val MAX_TRANSIENT_ERRORS = 8
     }
 
     private val running = AtomicBoolean(false)
@@ -66,7 +67,7 @@ class DafAudioEngine(
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT
             )
-            val recordBytes = max(recordMin, CHUNK_FRAMES * 2 * 4)
+            val recordBytes = max(recordMin, CHUNK_FRAMES * 2 * 6)
 
             val newRecorder = AudioRecord.Builder()
                 .setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
@@ -74,9 +75,7 @@ class DafAudioEngine(
                 .setBufferSizeInBytes(recordBytes)
                 .build()
 
-            if (input != null) {
-                newRecorder.setPreferredDevice(input)
-            }
+            if (input != null) newRecorder.setPreferredDevice(input)
 
             val outputFormat = AudioFormat.Builder()
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
@@ -89,7 +88,7 @@ class DafAudioEngine(
                 AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT
             )
-            val trackBytes = max(trackMin, CHUNK_FRAMES * 2 * 4)
+            val trackBytes = max(trackMin, CHUNK_FRAMES * 2 * 6)
             val communication = routeManager.isBluetoothMic(input)
 
             val attributes = AudioAttributes.Builder()
@@ -108,9 +107,7 @@ class DafAudioEngine(
                 .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
                 .build()
 
-            if (output != null) {
-                newPlayer.setPreferredDevice(output)
-            }
+            if (output != null) newPlayer.setPreferredDevice(output)
 
             check(newRecorder.state == AudioRecord.STATE_INITIALIZED) {
                 "Не удалось инициализировать микрофон"
@@ -137,7 +134,7 @@ class DafAudioEngine(
     fun stop() {
         if (!running.getAndSet(false)) return
         runCatching { recorder?.stop() }
-        runCatching { worker?.join(800) }
+        runCatching { worker?.join(1_000) }
     }
 
     private fun audioLoop(record: AudioRecord, track: AudioTrack) {
@@ -148,8 +145,9 @@ class DafAudioEngine(
             val input = ShortArray(CHUNK_FRAMES)
             val output = ShortArray(CHUNK_FRAMES)
             val maxDelaySamples = SAMPLE_RATE * MAX_DELAY_MS / 1000
-            val ring = ShortArray(maxDelaySamples + CHUNK_FRAMES * 4)
+            val ring = ShortArray(maxDelaySamples + CHUNK_FRAMES * 6)
             var writePos = 0
+            var transientErrors = 0
 
             track.setVolume(volume)
             track.play()
@@ -162,9 +160,16 @@ class DafAudioEngine(
                     input.size,
                     AudioRecord.READ_BLOCKING
                 )
-                if (read <= 0) {
-                    if (running.get()) error("Ошибка чтения микрофона: $read")
-                    break
+
+                if (read == 0) continue
+                if (read < 0) {
+                    if (!running.get()) break
+                    transientErrors++
+                    if (transientErrors > MAX_TRANSIENT_ERRORS) {
+                        error("Ошибка чтения микрофона: $read")
+                    }
+                    Thread.sleep(35)
+                    continue
                 }
 
                 val delaySamples = (delayMs * SAMPLE_RATE / 1000)
@@ -188,9 +193,17 @@ class DafAudioEngine(
 
                 track.setVolume(volume)
                 val written = track.write(output, 0, read, AudioTrack.WRITE_BLOCKING)
-                if (written < 0 && running.get()) {
-                    error("Ошибка вывода звука: $written")
+                if (written < 0) {
+                    if (!running.get()) break
+                    transientErrors++
+                    if (transientErrors > MAX_TRANSIENT_ERRORS) {
+                        error("Ошибка вывода звука: $written")
+                    }
+                    Thread.sleep(35)
+                    continue
                 }
+
+                transientErrors = 0
             }
         } catch (t: Throwable) {
             if (running.get()) failure = t
