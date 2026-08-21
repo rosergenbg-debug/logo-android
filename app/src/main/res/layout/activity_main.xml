@@ -77,6 +77,15 @@
             android:layout_height="52dp"
             android:backgroundTint="@color/logo_black" />
 
+        <TextView
+            android:id="@+id/connectionModeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Аудиотракт: —"
+            android:textColor="#5F6368"
+            android:textSize="12sp" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/refreshButton"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -86,6 +95,57 @@
             android:text="Обновить список устройств"
             android:textColor="@color/logo_black"
             app:strokeColor="@color/logo_black" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="#EDE9E2"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Калибровка реальной задержки"
+                android:textColor="@color/logo_black"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/calibrationValueText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Базовая задержка: не измерена"
+                android:textColor="@color/logo_black"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/totalDelayText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Итого: неизвестно"
+                android:textColor="#5F6368" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Для измерения выньте один наушник и приложите его звуководом вплотную к микрофону телефона. В тихом месте нажмите «Калибровать». Прозвучат 4 коротких сигнала."
+                android:textColor="#5F6368"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/calibrateButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="КАЛИБРОВАТЬ"
+                android:textColor="@color/logo_black"
+                app:backgroundTint="@color/logo_yellow" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -296,7 +356,7 @@
             android:layout_marginTop="22dp"
             android:background="#EDE9E2"
             android:padding="12dp"
-            android:text="Системная Bluetooth-задержка в v1.0 не калибруется автоматически. Значение выше — дополнительная задержка приложения."
+            android:text="После калибровки здесь будет видна базовая Bluetooth-задержка. Значение DAF выше добавляется поверх неё."
             android:textColor="#5F6368"
             android:textSize="12sp" />
 
@@ -306,7 +366,7 @@
             android:layout_marginTop="14dp"
             android:layout_marginBottom="20dp"
             android:gravity="center"
-            android:text="Лого 1.0 • локальная обработка • без записи голоса"
+            android:text="Лого 1.1 • локальная обработка • без записи голоса"
             android:textColor="#777777"
             android:textSize="11sp" />
 
