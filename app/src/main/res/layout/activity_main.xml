@@ -82,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Аудиотракт: —"
+            android:text="Подключение: —"
             android:textColor="#5F6368"
             android:textSize="12sp" />
 
@@ -133,7 +133,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Для измерения выньте один наушник и приложите его звуководом вплотную к микрофону телефона. В тихом месте нажмите «Калибровать». Прозвучат 4 коротких сигнала."
+                android:text="Поставьте видео и музыку на паузу, громкость мультимедиа — примерно 70–100%. Выньте один наушник и прижмите его звуководом к нижнему микрофону телефона рядом с USB-C. Нажмите «Калибровать» и держите неподвижно до окончания теста."
                 android:textColor="#5F6368"
                 android:textSize="12sp" />
 
@@ -356,7 +356,7 @@
             android:layout_marginTop="22dp"
             android:background="#EDE9E2"
             android:padding="12dp"
-            android:text="После калибровки здесь будет видна базовая Bluetooth-задержка. Значение DAF выше добавляется поверх неё."
+            android:text="0 мс — это только отсутствие дополнительной задержки Лого. После калибровки здесь будет показана собственная задержка Bluetooth."
             android:textColor="#5F6368"
             android:textSize="12sp" />
 
@@ -366,7 +366,7 @@
             android:layout_marginTop="14dp"
             android:layout_marginBottom="20dp"
             android:gravity="center"
-            android:text="Лого 1.1 • локальная обработка • без записи голоса"
+            android:text="Лого 1.2 • локальная обработка • без записи голоса"
             android:textColor="#777777"
             android:textSize="11sp" />
 
