@@ -20,7 +20,7 @@ jobs:
       - name: Extract LAN Most Android project
         run: |
           mkdir -p lan-most-app
-          cat lan-most-src/part*.b64 | tr -d '\\n' | base64 --decode > source.tar.xz
+          cat lan-most-src/part*.b64 | base64 --decode > source.tar.xz
           echo '83bceb3e477ba1dee01d96508ef79d34e0139406a5410ee2632aec6915a90dec  source.tar.xz' | sha256sum -c -
           tar -xJf source.tar.xz -C lan-most-app
           find lan-most-app -type f | sort
