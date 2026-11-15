@@ -1,0 +1,12 @@
+name: LAN Most APK temporary build
+on:
+  push:
+    branches: [lan-most-ci-build-v1]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "LAN Most build runner ready"
