@@ -8,6 +8,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -25,7 +28,7 @@ jobs:
           tar -xJf source.tar.xz -C lan-most-app
           find lan-most-app -type f | sort
       - name: Install SDK platform 35
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+        run: /usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Compile and sign debug Android APK
         run: gradle --no-daemon -p lan-most-app :app:assembleDebug
       - name: Upload installable APK
