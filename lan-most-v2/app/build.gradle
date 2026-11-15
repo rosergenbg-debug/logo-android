@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'de.roserge.lanmost'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'de.roserge.lanmost.v2'
+        minSdk 29
+        targetSdk 35
+        versionCode 2
+        versionName '2.0.0'
+    }
+
+    signingConfigs {
+        release {
+            // Never put a .jks or a password in the repository.
+            if (System.getenv('LANMOST_KEYSTORE_FILE') &&
+                System.getenv('LANMOST_KEYSTORE_PASSWORD') &&
+                System.getenv('LANMOST_KEY_ALIAS') &&
+                System.getenv('LANMOST_KEY_PASSWORD')) {
+                storeFile file(System.getenv('LANMOST_KEYSTORE_FILE'))
+                storePassword System.getenv('LANMOST_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('LANMOST_KEY_ALIAS')
+                keyPassword System.getenv('LANMOST_KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv('LANMOST_KEYSTORE_FILE') &&
+                System.getenv('LANMOST_KEYSTORE_PASSWORD') &&
+                System.getenv('LANMOST_KEY_ALIAS') &&
+                System.getenv('LANMOST_KEY_PASSWORD')) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'eu.agno3.jcifs:jcifs-ng:2.1.10'
+    // jcifs-ng logs through SLF4J; silence the missing-binding warning.
+    implementation 'org.slf4j:slf4j-nop:1.7.36'
+    testImplementation 'junit:junit:4.13.2'
+}

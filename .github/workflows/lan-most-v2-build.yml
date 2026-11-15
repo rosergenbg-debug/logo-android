@@ -1,0 +1,42 @@
+name: LAN Most v2.0.0 · Android APK
+on:
+  push:
+    branches: [lan-most-v2]
+    paths:
+      - 'lan-most-v2/**'
+      - '.github/workflows/lan-most-v2-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install SDK 35
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Build and test Android app
+        run: gradle --no-daemon -p lan-most-v2 :app:assembleDebug :app:testDebugUnitTest
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LAN-Most-v2.0.0-APK
+          path: lan-most-v2/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - name: Publish directly downloadable APK to GitHub branch
+        run: |
+          cp lan-most-v2/app/build/outputs/apk/debug/app-debug.apk LAN-Most-v2.0.0.apk
+          sha256sum LAN-Most-v2.0.0.apk
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f LAN-Most-v2.0.0.apk
+          git commit -m 'release: publish signed debug APK for LAN Most v2.0.0'
+          git push origin HEAD:lan-most-v2
