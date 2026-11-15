@@ -1,0 +1,29 @@
+name: Publish LAN Most direct APK
+on:
+  push:
+    branches: [lan-most-ci-build-v1]
+    paths: ['.github/workflows/publish-lan-most-apk.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download successful verified APK build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 43710730301 --repo "${{ github.repository }}" --name LAN-Most-Android-APK --dir /tmp/lan-most-artifact
+          test -s /tmp/lan-most-artifact/app-debug.apk
+          cp /tmp/lan-most-artifact/app-debug.apk ./LAN-Most-v1.0.0.apk
+          echo "54675a2cf75d9312ea44c44ab543ec020031f78007c7514d2a0b23de9e39eadd  LAN-Most-v1.0.0.apk" | sha256sum -c -
+      - name: Publish direct-download APK on branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f LAN-Most-v1.0.0.apk
+          git commit -m "release: add directly downloadable LAN Most v1.0.0 APK"
+          git push origin HEAD:lan-most-ci-build-v1
